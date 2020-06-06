@@ -8,18 +8,51 @@ metadata:
     app: myapp
     type: front-end
 spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app: myapp
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
     template:
       metadata:
         name: myapp-pod
         labels:
           app: myapp
-
       spec:
         containers:
           - name: nginx-container
             image: nginx
-    replicas: 3
-    selector:
-      matchLabels:
-        app: myapp
+            ports:
+              - containerPort: 80
+            readinessProbe:
+              failureThreshold: 3
+              httpGet:
+                port: 80
+                path: /
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+            livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                port: 80
+                path: /
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 1
+              initialDelaySeconds: 10
+            resources:
+              requests:
+                cpu: 60m
+                memory: 100Mi
+              limits:
+                cpu: 100m
+                memory: 100Mi
+
+
+
 
